@@ -17,6 +17,7 @@ public class Mathgame {
         } else {
         	timerLabel.setText("끝!");
         }
+        
     }
 
     // 스코어 업데이트 (수정예정)
@@ -24,6 +25,8 @@ public class Mathgame {
     	score1++;
         scoreLabel.setText("Score: " + score1);
     }
+    
+    private static Timer answerCheckTimer; // 답변을 체크하는 타이머
     
     public static void main(String[] args) {
         JFrame frame = new JFrame("Calculator Game");
@@ -43,6 +46,8 @@ public class Mathgame {
         String initialProblem1 = RandomLogic.generateProblem();
         questionField1.setText(initialProblem1);
         questionField1.setEditable(false);
+        
+        
         
         // 문제 초기화
         String initialProblem = RandomLogic.generateProblem();
@@ -73,6 +78,26 @@ public class Mathgame {
             }
         });
         timer.start();
+        
+     // 답변을 체크하는 타이머 초기화
+        answerCheckTimer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String userAnswer = answerField1.getText(); // 사용자의 답을 가져옵니다.
+                if (!userAnswer.isEmpty()) {
+                    String correctAnswer = RandomLogic.calculateAnswer(questionField1.getText()); // 올바른 답을 계산합니다.
+                    if (userAnswer.equals(correctAnswer)) { // 사용자의 답과 올바른 답을 비교합니다.
+                        updateScore(scoreLabel, 1); // 점수를 업데이트합니다.
+                        String problem = RandomLogic.generateProblem();
+                        questionField1.setText(problem);
+                        questionField1.setCaretPosition(problem.length());
+                        answerField1.setText(""); // 답변 필드 초기화
+                        answerField1.requestFocusInWindow(); // 커서를 다시 답변 필드로 설정합니다.
+                    }
+                }
+            }
+        });
+        answerCheckTimer.start();
 
      // Action listeners 수정
         button1.addActionListener(new ActionListener() {
