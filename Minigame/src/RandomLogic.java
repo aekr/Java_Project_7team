@@ -40,6 +40,31 @@ public class RandomLogic {
 
         return problem;
     }
+ // 올바른 답을 계산하는 메서드 추가
+    public static String calculateAnswer(String problem) {
+        // 문제 문자열에서 숫자와 연산자를 분리합니다.
+        String[] parts = problem.split(" ");
+        int num1 = Integer.parseInt(parts[0]);
+        int num2 = Integer.parseInt(parts[2]);
+        int result;
+        switch (parts[1]) {
+            case "+":
+                result = num1 + num2;
+                break;
+            case "-":
+                result = num1 - num2;
+                break;
+            case "*":
+                result = num1 * num2;
+                break;
+            case "/":
+                result = num1 / num2;
+                break;
+            default:
+                return ""; // 혹은 적절한 에러 처리
+        }
+        return String.valueOf(result);
+    }
 
     public static void main(String[] args) {
         for (int i = 0; i < 10; i++) {

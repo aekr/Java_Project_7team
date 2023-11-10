@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class TimerClass {
-    private int timeLeft = 60; // 60 seconds
+    private int timeLeft = 30; // 60 seconds
     private Timer timer;
     private JLabel timeLabel;
 
