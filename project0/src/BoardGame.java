@@ -39,7 +39,7 @@ public class BoardGame {
         boardPanel = new JPanel();
         boardPanel.setLayout(new GridLayout(4,5));
         frame.getContentPane().add(boardPanel, BorderLayout.CENTER);
-
+        frame.setLocationRelativeTo(null);
         controlPanel = new JPanel();
         controlPanel.setLayout(new FlowLayout());
         rollDiceButton1P = new JButton("1P Roll Dice");
@@ -114,7 +114,7 @@ public class BoardGame {
             Random rand = new Random();
             int roll = rand.nextInt(6) + 1;
             rollCount = roll;
-            timer = new Timer(1000, new ActionListener() {
+            timer = new Timer(500, new ActionListener() {
                 public void actionPerformed(ActionEvent evt) {
                     if (is1P) {
                         currentPosition1P = (currentPosition1P + 1) % totalCells;
@@ -134,6 +134,8 @@ public class BoardGame {
                         } else {
                             is1P = true;
                             rollDiceButton1P.setText("1P Roll Dice");
+                            frame.setVisible(false);
+                            new Test_Game(frame);
                         }
                     }
                 }

@@ -6,7 +6,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.KeyEvent;
 import java.util.Random;
 
-public class Game1 extends JFrame{
+public class Test_Game extends JFrame{
 	private JFrame j;
     private JLabel timeLabel;
     private JLabel ready;
@@ -23,7 +23,7 @@ public class Game1 extends JFrame{
     private int alpha = 255;
     private boolean key1 = true;
     private boolean key2 = true;
-    public Game1(JFrame j) {
+    public Test_Game(JFrame j) {
         setTitle("Game1");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
