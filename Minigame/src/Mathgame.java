@@ -9,27 +9,10 @@ import java.awt.event.ActionListener;
 public class Mathgame {
 	private static int timeLeft = 30; // 60 seconds
     private static int score1 = 0;
+    private static TimerClass timer;
     
-    public static void updateTimer(JLabel timerLabel) {
-        if (timeLeft > 0) {
-            timeLeft--;
-            timerLabel.setText("Time left: " + timeLeft);
-        } else {
-        	timerLabel.setText("끝!");
-        }
-        
-    }
-
-    // 스코어 업데이트 (수정예정)
-    public static void updateScore(JLabel scoreLabel, int player) {
-    	score1++;
-        scoreLabel.setText("Score: " + score1);
-    }
-    
-    private static Timer answerCheckTimer; // 답변을 체크하는 타이머
-    
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Calculator Game");
+    private static void createAndShowGUI() {
+    	JFrame frame = new JFrame("Calculator Game");
         frame.setSize(400, 200);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(2, 1));
@@ -47,9 +30,9 @@ public class Mathgame {
         questionField1.setText(initialProblem1);
         questionField1.setEditable(false);
         
-        
-        
-        // 문제 초기화
+        JOptionPane.showMessageDialog(frame, "스페이스바를 눌러 게임을 시작하세요.");
+
+     // 문제 초기화
         String initialProblem = RandomLogic.generateProblem();
         questionField1.setText(initialProblem);
         questionField1.setEditable(false);
@@ -60,24 +43,14 @@ public class Mathgame {
         JPanel panelBottom = new JPanel();
         
      // Add Timer and Score labels
-        JLabel timerLabel = new JLabel("Time left: 30");
+        JLabel timeLabel = new JLabel("Time left: 30");
         JLabel scoreLabel = new JLabel("Score: 0");
-        panelBottom.add(timerLabel);
         
      // 스코어 라벨 추가
         panelBottom.add(scoreLabel);
         
         //작동 제대로 안함
         frame.add(panelBottom);
-
-        // Initialize Timer
-        Timer timer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                updateTimer(timerLabel);
-            }
-        });
-        timer.start();
         
      // 답변을 체크하는 타이머 초기화
         answerCheckTimer = new Timer(500, new ActionListener() {
@@ -120,5 +93,53 @@ public class Mathgame {
         
      // Set focus to the answer field
         answerField1.requestFocusInWindow();
+        
+        
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setBounds(10, 10, 200, 20); // 위치와 크기 설정
+        frame.add(progressBar); // 프레임에 프로그레스 바 추가
+
+        // TimerClass 인스턴스 생성 및 시작
+        timer = new TimerClass(timeLabel, progressBar);
+        timer.start();
+        
+
+        // TimerClass 인스턴스 생성 시 progressBar 추가
+        TimerClass timer = new TimerClass(timeLabel, progressBar);
+        timer.start();
+    }
+
+
+    // 스코어 업데이트
+    public static void updateScore(JLabel scoreLabel, int player) {
+    	score1++;
+        scoreLabel.setText("Score: " + score1);
+    }
+    
+    private static Timer answerCheckTimer; // 답변을 체크하는 타이머
+    
+    public static void main(String[] args) {
+    	
+    	createAndShowGUI();
+    	
+		/*
+		 * JFrame frame = new JFrame("Calculator Game"); frame.setSize(400, 200);
+		 * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); frame.setLayout(new
+		 * GridLayout(2, 1));
+		 * 
+		 * // Player 1 Panel JPanel panel1 = new JPanel(); JTextField questionField1 =
+		 * new JTextField(10); // 문제 패널 JTextField answerField1 = new JTextField(10); //
+		 * 답변 패널 JButton button1 = new JButton("Calculate"); panel1.add(questionField1);
+		 * panel1.add(answerField1); panel1.add(button1);
+		 * 
+		 * String initialProblem1 = RandomLogic.generateProblem();
+		 * questionField1.setText(initialProblem1); questionField1.setEditable(false);
+		 */
+        
+        
+        
+        
+        
+        
     }
 }
