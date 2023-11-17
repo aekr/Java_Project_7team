@@ -109,6 +109,39 @@ public class BoardGame {
         public RollDiceListener(boolean is1P) {
             this.is1P = is1P;
         }
+        
+        // 박환희 위치 제어
+        private void updatePlayerPosition(int player) {
+		    int newPosition;
+		    if (player == 1) {
+		        newPosition = currentPosition1P;
+		    } else {
+		        newPosition = currentPosition2P;
+		    }
+
+		    switch (newPosition) {
+		        case 2:
+		            newPosition = 0; // 처음으로 이동
+		            break;
+		        case 4:
+		            newPosition = 13; // 지정된 위치로 이동
+		            break;
+		        case 7:
+		            newPosition = (newPosition + 3) % totalCells; // 앞으로 3칸 이동
+		            break;
+		        case 9:
+		            newPosition = (newPosition - 2 + totalCells) % totalCells; // 뒤로 2칸 이동
+		            break;
+		    }
+
+		    if (player == 1) {
+		        currentPosition1P = newPosition;
+		        playerPosition1P.setText("1P is at position: " + currentPosition1P);
+		    } else {
+		        currentPosition2P = newPosition;
+		        playerPosition2P.setText("2P is at position: " + currentPosition2P);
+		    }
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
