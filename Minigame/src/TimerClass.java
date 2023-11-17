@@ -1,44 +1,64 @@
-
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.*;
 
 public class TimerClass {
-	private double timeLeft = 5.0; // 시작 시간을 5초로 설정
-	private Timer timer;
-	private JLabel timeLabel;
-	private JProgressBar progressBar; // JProgressBar 추가
+    private double initialTime = 5.0; // 초기 시간
+    private double timeLeft; // 현재 남은 시간
+    private Timer timer;
+    private JLabel timeLabel;
+    private JProgressBar progressBar;
+    private PlayerManager playermanager;
 
-	public TimerClass(JLabel timeLabel, JProgressBar progressBar) {
-		this.timeLabel = timeLabel;
-		this.progressBar = progressBar; // 프로그레스 바 초기화
-		this.progressBar.setMaximum(5000); // 최대값을 설정 (5초를 밀리초로 환산)
-		this.progressBar.setValue(5000); // 초기값 설정
+    public TimerClass(JLabel timeLabel, JProgressBar progressBar, PlayerManager playerManager) {
+    	timeLeft = initialTime;
+        this.timeLabel = timeLabel;
+        this.progressBar = progressBar;
+        this.playermanager = playerManager;
+        this.progressBar.setMaximum((int)(initialTime * 1000));
 
-		timer = new Timer(1000, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (timeLeft > 0) {
-					timeLeft *= 0.95; // 시간을 5% 감소
-					progressBar.setValue((int) (timeLeft * 1000)); // 프로그레스 바 값을 업데이트
-					updateTimeLabel();
-				} else {
-					timer.stop();
-					// 게임 종료 로직
-				}
-			}
-		});
-	}
+        timer = new Timer(100, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	 // 남은 시간이 1.5초 이하일 때 프로그래스 바 색상 변경
+                if (timeLeft <= 1.5) {
+                    progressBar.setForeground(Color.RED); // 빨간색으로 변경
+                } else {
+                    progressBar.setForeground(Color.GREEN); // 그 외에는 초록색으로 유지
+                }
+                if (timeLeft > 0) {
+                    timeLeft -= 0.1;
+                    progressBar.setValue((int) (timeLeft * 1000));
+                    updateTimeLabel();
+                } else {
+                	timeLeft = 0;
+                	updateTimeLabel();
+                    timer.stop();
+                    playermanager.endGame(); // 게임 종료 로직
+                }
+            }
+        });
+    }
 
-	private void updateTimeLabel() {
-		timeLabel.setText("남은 시간: " + String.format("%.2f", timeLeft) + "초");
-	}
+    public void startNewQuestion() {
+        timeLeft = initialTime; // 새 문제 시작 시 초기 시간으로 재설정
+    }
 
-	public void start() {
-		timer.start();
-	}
+    public void correctAnswer() {
+        initialTime *= 0.95; // 정답을 맞출 때마다 초기 시간 5% 감소
+    }
+    
+	/*
+	 * private void updateTimeLabel() { long seconds = timeLeft / 1000; long
+	 * milliseconds = elapsedTime % 1000; String time = String.format("%02d.%03d",
+	 * seconds, milliseconds); timeLabel.setText(time); }
+	 */
+
+    private void updateTimeLabel() {
+        timeLabel.setText("남은 시간: " + String.format("%.1f", timeLeft) + "초");
+    }
+
+    public void start() {
+        timer.start();
+    }
 }
-
-/*
- * private void updateTimeLabel() { timeLabel.setText("Time left: " + timeLeft +
- * "s"); }
- */
