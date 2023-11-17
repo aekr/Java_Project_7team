@@ -16,6 +16,8 @@ public class BoardGame {
     private int currentPosition1P = 0;
     private int currentPosition2P = 0;
     private final int totalCells = 2 * (3+4);
+    private int star_1p=0;
+    private int star_2p=0;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -118,10 +120,16 @@ public class BoardGame {
                 public void actionPerformed(ActionEvent evt) {
                     if (is1P) {
                         currentPosition1P = (currentPosition1P + 1) % totalCells;
-                        playerPosition1P.setText("1P is at position: " + currentPosition1P);
+                        playerPosition1P.setText("1P is at position: " + currentPosition1P+"star:"+star_1p);
+                        if(currentPosition1P==4) {
+                        	star_1p++;
+                        }
                     } else {
                         currentPosition2P = (currentPosition2P + 1) % totalCells;
-                        playerPosition2P.setText("2P is at position: " + currentPosition2P);
+                        playerPosition2P.setText("2P is at position: " + currentPosition2P+"star:"+star_2p);
+                        if(currentPosition2P==4) {
+                        	star_2p++;
+                        }
                     }
                     updateBoard();
                     rollCount--;
