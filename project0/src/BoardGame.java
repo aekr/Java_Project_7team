@@ -3,7 +3,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
-
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+import java.io.IOException;
 
 
 public class BoardGame {
@@ -18,6 +21,8 @@ public class BoardGame {
     private final int totalCells = 2 * (3+4);
     private int star_1p=0;
     private int star_2p=0;
+    private ImageIcon player1Icon;
+    private ImageIcon player2Icon;
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -40,6 +45,24 @@ public class BoardGame {
         frame.setResizable(false);
         boardPanel = new JPanel();
         boardPanel.setLayout(new GridLayout(4,5));
+        
+        try {
+            Image img = ImageIO.read(getClass().getResource("blackhole.jpg"));
+            Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+            player1Icon = new ImageIcon(resizedImg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 오류 처리
+        }
+        try {
+            Image img = ImageIO.read(getClass().getResource("blackhole.jpg"));
+            Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+            player2Icon = new ImageIcon(resizedImg);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // 오류 처리
+        }
+        
         frame.getContentPane().add(boardPanel, BorderLayout.CENTER);
         frame.setLocationRelativeTo(null);
         controlPanel = new JPanel();
@@ -66,12 +89,12 @@ public class BoardGame {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 5; j++) {
                 JPanel cell = new JPanel();
-                cell.setPreferredSize(new Dimension(60, 48)); // Adjust size as needed
+                cell.setPreferredSize(new Dimension(60, 48)); // 크기 조정
                 if (isPlayerAt(i, j, currentPosition1P)) {
-                    cell.add(new JLabel(new ColorIcon(Color.BLUE)));
+                    cell.add(new JLabel(player1Icon));
                 }
                 if (isPlayerAt(i, j, currentPosition2P)) {
-                    cell.add(new JLabel(new ColorIcon(Color.RED)));
+                    cell.add(new JLabel(player2Icon));
                 }
                 boardPanel.add(cell);
             }
@@ -109,39 +132,6 @@ public class BoardGame {
         public RollDiceListener(boolean is1P) {
             this.is1P = is1P;
         }
-        
-        // 박환희 위치 제어
-        private void updatePlayerPosition(int player) {
-		    int newPosition;
-		    if (player == 1) {
-		        newPosition = currentPosition1P;
-		    } else {
-		        newPosition = currentPosition2P;
-		    }
-
-		    switch (newPosition) {
-		        case 2:
-		            newPosition = 0; // 처음으로 이동
-		            break;
-		        case 4:
-		            newPosition = 13; // 지정된 위치로 이동
-		            break;
-		        case 7:
-		            newPosition = (newPosition + 3) % totalCells; // 앞으로 3칸 이동
-		            break;
-		        case 9:
-		            newPosition = (newPosition - 2 + totalCells) % totalCells; // 뒤로 2칸 이동
-		            break;
-		    }
-
-		    if (player == 1) {
-		        currentPosition1P = newPosition;
-		        playerPosition1P.setText("1P is at position: " + currentPosition1P);
-		    } else {
-		        currentPosition2P = newPosition;
-		        playerPosition2P.setText("2P is at position: " + currentPosition2P);
-		    }
-        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -155,13 +145,13 @@ public class BoardGame {
                         currentPosition1P = (currentPosition1P + 1) % totalCells;
                         playerPosition1P.setText("1P is at position: " + currentPosition1P+"star:"+star_1p);
                         if(currentPosition1P==4) {
-                        	star_1p++;
+                           star_1p++;
                         }
                     } else {
                         currentPosition2P = (currentPosition2P + 1) % totalCells;
                         playerPosition2P.setText("2P is at position: " + currentPosition2P+"star:"+star_2p);
                         if(currentPosition2P==4) {
-                        	star_2p++;
+                           star_2p++;
                         }
                     }
                     updateBoard();
