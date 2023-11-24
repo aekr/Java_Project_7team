@@ -27,9 +27,12 @@ public class PlayerManager {
     }
 
     private void startGameForNextPlayer() {
-		JOptionPane.showMessageDialog(frame, "플레이어 1 끝! 점수: " + playerScores[0]);
+		// JOptionPane.showMessageDialog(frame, "플레이어 1 끝! 점수: " + playerScores[0]);
+    	
 		JOptionPane.showMessageDialog(frame, "스페이스바를 눌러 게임을 시작하세요.");
 		currentPlayer = 1; // 두 번째 플레이어로 설정
+		
+		answerField.setText("");
 		
 		String initialProblem = RandomLogic.generateProblem();
         questionField.setText(initialProblem);
@@ -46,19 +49,26 @@ public class PlayerManager {
     public void setPlayerScore(int player, int score) {
           playerScores[player] = score;
     }
+    
+    public void setFrame(JFrame frame) {
+        this.frame = frame;
+    }
 
     public void endGame() {
+    	Mathgame.endPlayerTurn();
 		/*
 		 * JOptionPane.showMessageDialog(frame, "플레이어 1 끝! 점수: " + score1);
 		 * JOptionPane.showMessageDialog(frame, "스페이스바를 눌러 게임을 시작하세요.");
 		 */
         currentPlayer++;
         if (currentPlayer < 2) {
+        	
             JOptionPane.showMessageDialog(frame, "플레이어 " + currentPlayer + "  끝! 점수: " + playerScores[currentPlayer - 1]);
             startGameForNextPlayer();
         } else {
             // Both players have played, show results
             showResults();
+            frame.dispose();
         }
     }
 
