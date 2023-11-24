@@ -1,5 +1,3 @@
-package minimi;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -51,8 +49,10 @@ public class MoleGame {
 	}
 
 	private void initialize() {
-		int imageWidth = 200;
-		int imageHeight = 200;
+		SoundManager soundManager = new SoundManager();
+		
+		int imageWidth = 100;
+		int imageHeight = 100;
 		
 		// 이미지 로드
         backgroundImage = new ImageIcon(getClass().getResource("Image1.png"));
@@ -85,7 +85,7 @@ public class MoleGame {
 
 		// 기본 UI 설정
 		frame = new JFrame();
-		frame.setBounds(100, 100, 1600, 900);
+		frame.setBounds(100, 100, 720, 480);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -160,6 +160,10 @@ public class MoleGame {
 
 		frame.setFocusable(true);
 		frame.requestFocusInWindow();
+		
+		// 배경음악 재생
+	    soundManager.loadBGM("bgm1.wav"); // 실제 파일 경로로 대체
+	    soundManager.playBGM();
 	}
 
 	// 랜덤 딜레이
@@ -392,6 +396,7 @@ public class MoleGame {
     }
 
 	class ButtonClickListener implements ActionListener {
+		SoundManager soundManager1 = new SoundManager();
 		private int row, col;
 
 		public ButtonClickListener(int row, int col) {
@@ -412,11 +417,15 @@ public class MoleGame {
 				score++;
 				moveBlueSquare();
 				moveGoldenSquare();
+				soundManager1.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
+		        soundManager1.playEffect();
 			} else if (row == Gold_currentRow && col == Gold_currentCol) {
 				score += 5;
 				// 황금 칸 이동
 				moveBlueSquare();
 				moveGoldenSquare();
+				soundManager1.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
+		        soundManager1.playEffect();
 			} else {
 				// 막 클릭 하는 사람이 있을 수 있기 때문에 점수 감소를 넣음
 				score--;

@@ -16,6 +16,11 @@ public class Mathgame {
 	private static JLabel scoreLabel;
 
 	public void createAndShowGUI() {
+		
+		
+	    SoundManager soundManager = new SoundManager();
+	    
+		
 		frame = new JFrame("Calculator Game");
 		frame.setSize(1080, 607); // 크기 조정
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -103,6 +108,8 @@ public class Mathgame {
 				String userAnswer = answerField.getText(); // 사용자의 답을 가져옵니다.
 				String correctAnswer = RandomLogic.calculateAnswer(questionField.getText()); // 올바른 답을 계산합니다.
 				if (userAnswer.equals(correctAnswer)) { // 사용자의 답과 올바른 답을 비교합니다.
+					soundManager.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
+			        soundManager.playEffect();
 					updateScore(scoreLabel); // 점수를 업데이트합니다.
 				}
 				// 새 문제를 생성하고 UI를 업데이트합니다.
@@ -144,6 +151,10 @@ public class Mathgame {
 				}
 			}
 		});
+		
+		// 배경음악 재생
+	    soundManager.loadBGM("bgm1.wav"); // 실제 파일 경로로 대체
+	    soundManager.playBGM();
 
 	}
 

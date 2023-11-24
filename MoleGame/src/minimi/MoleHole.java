@@ -1,4 +1,3 @@
-package minimi;
 
 public class MoleHole {
     private boolean hasMole;
