@@ -1,13 +1,23 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Random;
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.ImageIcon;
 import java.awt.Image;
+import java.io.File;
 import java.io.IOException;
-
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class BoardGame {
     private JFrame frame;
@@ -23,6 +33,9 @@ public class BoardGame {
     private int star_2p=0;
     private ImageIcon player1Icon;
     private ImageIcon player2Icon;
+    private Image backgroundImage;
+    private Clip bgm;
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -36,51 +49,90 @@ public class BoardGame {
     public BoardGame() {
         initialize();
     }
+    class BackgroundPanel extends JPanel {
 
+
+        public BackgroundPanel(String imagePath) {
+            try {
+                backgroundImage = ImageIO.read(getClass().getResource(imagePath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            setLayout(new BorderLayout());
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (backgroundImage != null) {
+                g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+            }
+        }
+    }
     private void initialize() {
         frame = new JFrame();
         frame.setBounds(100, 100, 1300, 800);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().setLayout(new BorderLayout());
+        
         frame.setResizable(false);
-        boardPanel = new JPanel();
-        boardPanel.setLayout(new GridLayout(4,5));
+
+        
+        BackgroundPanel backgroundPanel = new BackgroundPanel("pingpong_image.png");
+        frame.setContentPane(backgroundPanel);
+
+        boardPanel = new JPanel(new GridLayout(4, 5));
+        boardPanel.setOpaque(false); 
+        backgroundPanel.add(boardPanel, BorderLayout.CENTER);
         
         try {
-            Image img = ImageIO.read(getClass().getResource("blackhole.jpg"));
+            Image img = ImageIO.read(getClass().getResource("pingpong_image.png"));
             Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
             player1Icon = new ImageIcon(resizedImg);
         } catch (IOException e) {
             e.printStackTrace();
-            // 오류 처리
         }
         try {
-            Image img = ImageIO.read(getClass().getResource("blackhole.jpg"));
+            Image img = ImageIO.read(getClass().getResource("pingpong_image.png"));
             Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
             player2Icon = new ImageIcon(resizedImg);
         } catch (IOException e) {
             e.printStackTrace();
-            // 오류 처리
         }
         
-        frame.getContentPane().add(boardPanel, BorderLayout.CENTER);
-        frame.setLocationRelativeTo(null);
-        controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout());
+
+        controlPanel = new JPanel(new FlowLayout());
+        controlPanel.setOpaque(false); 
+        backgroundPanel.add(controlPanel, BorderLayout.SOUTH);
         rollDiceButton1P = new JButton("1P Roll Dice");
         rollDiceButton1P.addActionListener(new RollDiceListener(true));
         controlPanel.add(rollDiceButton1P);
-        frame.getContentPane().add(controlPanel, BorderLayout.SOUTH);
-
+        
+        JPanel statusPanel = new JPanel(new FlowLayout());
+        statusPanel.setOpaque(false);  
+        backgroundPanel.add(statusPanel, BorderLayout.NORTH);
         playerPosition1P = new JLabel("1P is at position: " + currentPosition1P);
         playerPosition2P = new JLabel("2P is at position: " + currentPosition2P);
-
-        JPanel statusPanel = new JPanel();
-        statusPanel.setLayout(new FlowLayout());
         statusPanel.add(playerPosition1P);
         statusPanel.add(playerPosition2P);
-        frame.getContentPane().add(statusPanel, BorderLayout.NORTH);
 
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        frame.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                playBgm("rapid_bgm.wav");
+            }
+            @Override
+            public void componentHidden(ComponentEvent e) {
+                stopBgm();
+            }
+        });
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowOpened(WindowEvent e) {
+                playBgm("rapid_bgm.wav");
+            }
+        });
         updateBoard();
     }
 
@@ -89,7 +141,9 @@ public class BoardGame {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 5; j++) {
                 JPanel cell = new JPanel();
-                cell.setPreferredSize(new Dimension(60, 48)); // 크기 조정
+                cell.setOpaque(false); 
+                cell.setPreferredSize(new Dimension(60, 48));
+
                 if (isPlayerAt(i, j, currentPosition1P)) {
                     cell.add(new JLabel(player1Icon));
                 }
@@ -102,9 +156,7 @@ public class BoardGame {
         boardPanel.revalidate();
         boardPanel.repaint();
     }
-
     private boolean isPlayerAt(int row, int col, int position) {
-        // Convert the 1D position to a 2D position on the board
         int targetRow = 0, targetCol = 0;
         if (position < 5) {
             targetRow = 0;
@@ -122,7 +174,6 @@ public class BoardGame {
 
         return row == targetRow && col == targetCol;
     }
-
     
     private class RollDiceListener implements ActionListener {
         private boolean is1P;
@@ -135,7 +186,7 @@ public class BoardGame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            rollDiceButton1P.setEnabled(false); // 주사위 굴리는 동안 버튼 비활성화
+            rollDiceButton1P.setEnabled(false); 
             Random rand = new Random();
             int roll = rand.nextInt(6) + 1;
             rollCount = roll;
@@ -158,7 +209,7 @@ public class BoardGame {
                     rollCount--;
                     if (rollCount <= 0) {
                         timer.stop();
-                        rollDiceButton1P.setEnabled(true); // 이동이 끝나면 버튼 다시 활성화
+                        rollDiceButton1P.setEnabled(true); 
                         if (is1P) {
                             is1P = false;
                             rollDiceButton1P.setText("2P Roll Dice");
@@ -166,7 +217,9 @@ public class BoardGame {
                             is1P = true;
                             rollDiceButton1P.setText("1P Roll Dice");
                             frame.setVisible(false);
-                            new Test_Game(frame);
+                            stopBgm();
+                            new Rapid_Fire_Game   (frame);
+                            
                         }
                     }
                 }
@@ -174,29 +227,28 @@ public class BoardGame {
             timer.start();
         }
     }
-    
-    
-    private static class ColorIcon implements Icon {
-        private final Color color;
-
-        public ColorIcon(Color color) {
-            this.color = color;
-        }
-
-        @Override
-        public void paintIcon(Component c, Graphics g, int x, int y) {
-            g.setColor(color);
-            g.fillOval(x, y, getIconWidth(), getIconHeight());
-        }
-
-        @Override
-        public int getIconWidth() {
-            return 50;
-        }
-
-        @Override
-        public int getIconHeight() {
-            return 50;
+    public void playBgm(String filePath) {
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
+            bgm = AudioSystem.getClip();
+            bgm.open(audioInputStream);
+            bgm.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
         }
     }
+    public void stopBgm() {
+        if (bgm != null) {
+            if (bgm.isRunning()) {
+                bgm.stop();
+            }
+            bgm.close();
+        }
+    }
+    public void restart() {
+        bgm.setMicrosecondPosition(0);
+        bgm.start();
+    }
 }
+    
+    
