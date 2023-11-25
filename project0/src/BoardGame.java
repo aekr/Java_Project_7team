@@ -10,14 +10,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.ImageIcon;
+
 import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.io.*;
+import java.awt.event.*;
 
 public class BoardGame {
     private JFrame frame;
@@ -31,10 +27,14 @@ public class BoardGame {
     private final int totalCells = 2 * (3+4);
     private int star_1p=0;
     private int star_2p=0;
+    // 코인
+    private int coin_1p=0;
+    private int coin_2p=0;
     private ImageIcon player1Icon;
     private ImageIcon player2Icon;
     private Image backgroundImage;
     private Clip bgm;
+    private int turnCount = 1;
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -194,13 +194,13 @@ public class BoardGame {
                 public void actionPerformed(ActionEvent evt) {
                     if (is1P) {
                         currentPosition1P = (currentPosition1P + 1) % totalCells;
-                        playerPosition1P.setText("1P is at position: " + currentPosition1P+"star:"+star_1p);
+                        playerPosition1P.setText("1P is at position: " + currentPosition1P+"star:"+star_1p + "turncount:" + turnCount);
                         if(currentPosition1P==4) {
                            star_1p++;
                         }
                     } else {
                         currentPosition2P = (currentPosition2P + 1) % totalCells;
-                        playerPosition2P.setText("2P is at position: " + currentPosition2P+"star:"+star_2p);
+                        playerPosition2P.setText("2P is at position: " + currentPosition2P+"star:"+star_2p + "turncount:" + turnCount);
                         if(currentPosition2P==4) {
                            star_2p++;
                         }
@@ -208,22 +208,30 @@ public class BoardGame {
                     updateBoard();
                     rollCount--;
                     if (rollCount <= 0) {
+                    	
                         timer.stop();
                         rollDiceButton1P.setEnabled(true); 
                         if (is1P) {
+                        	
                             is1P = false;
                             rollDiceButton1P.setText("2P Roll Dice");
+                            playerPosition1P.setText("1P is at position: " + currentPosition1P+"star:"+star_1p + "turncount:" + turnCount);
                         } else {
+                        	
                             is1P = true;
                             rollDiceButton1P.setText("1P Roll Dice");
+                            turnCount++;
+                            playerPosition2P.setText("2P is at position: " + currentPosition2P+"star:"+star_2p + "turncount:" + turnCount);
                             frame.setVisible(false);
                             stopBgm();
                             new Rapid_Fire_Game   (frame);
-                            
+                            // frame.setVisible(true); 밑에 넣기
+                            GameendCheck();
                         }
                     }
                 }
             });
+            
             timer.start();
         }
     }
@@ -248,6 +256,40 @@ public class BoardGame {
     public void restart() {
         bgm.setMicrosecondPosition(0);
         bgm.start();
+    }
+    
+    // 게임 종료 로직
+    public void GameendCheck() {
+    	String message1 = String.format("1P의 점수 - 별 : %d, 코인 : %d | 2P의 점수 - 별 : %d, 코인 : %d", star_1p, coin_1p , star_2p, coin_2p);
+    	if (turnCount >= 3) {
+    		if (star_1p > star_2p) {
+    		    // 1P 승리 메시지 표시
+    			JOptionPane.showMessageDialog(frame, message1);
+    			JOptionPane.showMessageDialog(frame, "1P가 승리했습니다! ");
+    		} else if (star_1p < star_2p) {
+    		    // 2P 승리 메시지 표시
+    			JOptionPane.showMessageDialog(frame, message1);
+    			JOptionPane.showMessageDialog(frame, "2P가 승리했습니다! ");
+    		} else if (star_1p == star_2p && coin_1p > coin_2p){
+    			// 코인 
+    			JOptionPane.showMessageDialog(frame, message1);
+    			JOptionPane.showMessageDialog(frame, "1P가 승리했습니다! ");
+    		} else if (star_1p == star_2p && coin_1p < coin_2p){
+    			JOptionPane.showMessageDialog(frame, message1);
+    			JOptionPane.showMessageDialog(frame, "2P가 승리했습니다! ");
+    		}
+    		else {
+    			// 무승부 메시지 표시
+    			JOptionPane.showMessageDialog(frame, message1);
+    			JOptionPane.showMessageDialog(frame, "무승부! ");
+    		}
+    		
+    	//모든 창 종료
+    	System.exit(0);
+    	}
+    	else {
+    		return;
+    	}
     }
 }
     
