@@ -77,7 +77,7 @@ public class BoardGame {
 		// true로 설정 돼 있으면 false로
 		frame.setResizable(false);
 
-		BackgroundPanel backgroundPanel = new BackgroundPanel("background5.png"); // background2.png
+		BackgroundPanel backgroundPanel = new BackgroundPanel("main_background.png"); // background2.png
 		frame.setContentPane(backgroundPanel);
 
 		boardPanel = new JPanel(new GridLayout(4, 5));
