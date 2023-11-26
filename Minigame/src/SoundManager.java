@@ -52,4 +52,15 @@ public class SoundManager {
             effectClip.start();
         }
     }
+    
+    public void stopAllSounds() {
+        if (bgmClip != null) {
+            bgmClip.stop();
+            bgmClip.close(); // 리소스 해제
+        }
+        if (effectClip != null) {
+            effectClip.stop();
+            effectClip.close(); // 리소스 해제
+        }
+    }
 }
