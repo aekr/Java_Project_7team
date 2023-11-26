@@ -55,11 +55,13 @@ public class Tajagame extends JFrame {
     public boolean playerturn = false;
     private int playercount_2;
     public int winner;
-    
+    private JFrame main;
    private KeyListener first_Listener;
    private KeyListener second_Listener;
-    public Tajagame()
+   private BackgroundMusic bgm = new BackgroundMusic();
+    public Tajagame(JFrame j)
     {
+    	main = j;
         frame = new JFrame("Taja Game");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1300, 800);
@@ -85,28 +87,33 @@ public class Tajagame extends JFrame {
        if (player_1 > player_2)
        {
           JOptionPane.showMessageDialog(this, player_1+ " : " + player_2 + "으로 1번 플레이어의 승리입니다!", "\nGame Over!", JOptionPane.INFORMATION_MESSAGE);
-          System.exit(0);
+          main.setVisible(true);
+          bgm.stopBackgroundMusic();
+          frame.dispose();
        }
        else if (player_1 < player_2)
        {
           JOptionPane.showMessageDialog(this, player_1+ " : " + player_2 + "으로 2번 플레이어의 승리입니다!", "\nGame Over!", JOptionPane.INFORMATION_MESSAGE);
-          System.exit(0);
+          main.setVisible(true);
+          bgm.stopBackgroundMusic();
+          frame.dispose();
        }
        else
        {
           JOptionPane.showMessageDialog(this, player_1+ " : " + player_2 + "으로 아쉽게 무승부입니다!", "\nGame Over!", JOptionPane.INFORMATION_MESSAGE);
-          System.exit(0);
+          main.setVisible(true);
+          bgm.stopBackgroundMusic();
+          frame.dispose();
        }
      }
     private void startGameTimer() {
-        BackgroundMusic bgm = new BackgroundMusic();
         bgm.playLoopBackgroundMusic("tajagame.wav");
         gameTimer = new Timer();
         gameTimer.schedule(new TimerTask() {
             @Override
             public void run() {
             JLabel gameOverLabel = new JLabel("");
-           playercount_1 = successCount;
+            playercount_1 = successCount;
             keyPanel.removeAll(); 
             keyPanel.setLayout(new BorderLayout()); 
             keyPanel.add(gameOverLabel, BorderLayout.CENTER); 
@@ -118,7 +125,6 @@ public class Tajagame extends JFrame {
             }
         }, 15000);
     }
-
     private void startGameTimer2() 
     {
         gameTimer2 = new Timer();
@@ -141,7 +147,7 @@ public class Tajagame extends JFrame {
             }
         }, 15000); 
     }
-
+    
     private void checkKey(char key) {
         char expectedKey = expectedKeys.charAt(index);
         if (key == expectedKey) {
@@ -237,14 +243,14 @@ public class Tajagame extends JFrame {
                 {
                    keyPanel.removeAll();
                    startNewGame();
-                    startGameTimer();
+                    startGameTimer(); 
                 } else if (game) {
                     checkKey(e.getKeyChar());
                 }
             }
         };
         frame.addKeyListener(first_Listener);
-        frame.setVisible(true);
+        frame.setVisible(true); 
     }
     void second_start()
     {

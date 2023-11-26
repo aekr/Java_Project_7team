@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -10,7 +9,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-
 import java.awt.Image;
 import java.io.*;
 import java.awt.event.*;
@@ -27,14 +25,14 @@ public class BoardGame {
 	private final int totalCells = 2 * (3 + 4);
 	private int star_1p = 0;
 	private int star_2p = 0;
-	private int coin_1p = 0; // 코인
+	private int coin_1p = 40; // 코인
 	private int coin_2p = 0;
 	private ImageIcon player1Icon;
 	private ImageIcon player2Icon;
 	private Image backgroundImage;
 	private Clip bgm;
 	private int turnCount = 1; // 턴
-
+	private Random random = new Random();
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
 			try {
@@ -99,19 +97,20 @@ public class BoardGame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 		controlPanel = new JPanel(new FlowLayout());
 		controlPanel.setOpaque(false);
 		backgroundPanel.add(controlPanel, BorderLayout.SOUTH);
-		rollDiceButton1P = new JButton("1P Roll Dice");
+		rollDiceButton1P = new JButton("P1 주사위 굴리기");
 		rollDiceButton1P.addActionListener(new RollDiceListener(true));
 		controlPanel.add(rollDiceButton1P);
 
 		JPanel statusPanel = new JPanel(new FlowLayout());
 		statusPanel.setOpaque(false);
 		backgroundPanel.add(statusPanel, BorderLayout.NORTH);
-		playerPosition1P = new JLabel("1P is at position: " + currentPosition1P);
-		playerPosition2P = new JLabel("2P is at position: " + currentPosition2P);
+		playerPosition1P = new JLabel("P1의 star : " + star_1p
+				+ " coins : " + coin_1p);
+		playerPosition2P = new JLabel(" P2의 star : " + star_2p
+				+ " coins : " + coin_2p +"현재 턴 : " + turnCount);
 		statusPanel.add(playerPosition1P);
 		statusPanel.add(playerPosition2P);
 
@@ -120,7 +119,7 @@ public class BoardGame {
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
-				playBgm("rapid_bgm.wav");
+				playBgm("main_bgm.wav");
 			}
 
 			@Override
@@ -131,25 +130,20 @@ public class BoardGame {
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
-				playBgm("rapid_bgm.wav");
+				playBgm("main_bgm.wav");
 			}
 		});
 		updateBoard();
 	}
-
-	// 업데이트 된 보드. 중앙 정렬. 같은 위치에 있을 때 겹치지 않도록 수정.
-	private void updateBoard() {
+	private void updateBoard() 
+	{
 		boardPanel.removeAll();
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 5; j++) {
 				JPanel cell = new JPanel(new BorderLayout());
-				// true로 설정 돼 있으면 false로
 				cell.setOpaque(false);
 				cell.setPreferredSize(new Dimension(60, 48));
-				// 디버그용 cell 테두리
-//				cell.setBorder(BorderFactory.createLineBorder(Color.black));
-
-				// 두 플레이어가 같은 위치에 있는지 확인
+				
 				boolean player1At = isPlayerAt(i, j, currentPosition1P);
 				boolean player2At = isPlayerAt(i, j, currentPosition2P);
 
@@ -180,32 +174,6 @@ public class BoardGame {
 		boardPanel.revalidate();
 		boardPanel.repaint();
 	}
-
-	// 구 updateBaord(). 주석은 Ctrl + /로 해제
-//	private void updateBoard() {
-//		boardPanel.removeAll();
-//		for (int i = 0; i < 4; i++) {
-//			for (int j = 0; j < 5; j++) {
-//				JPanel cell = new JPanel(); // JPanel cell = new JPanel(new BorderLayout());
-//				// JPanel cell = new JPanel();
-//				cell.setOpaque(false);
-//				cell.setPreferredSize(new Dimension(60, 48));
-//				// 디버그용 cell 테두리
-//				cell.setBorder(BorderFactory.createLineBorder(Color.black));
-//
-//				if (isPlayerAt(i, j, currentPosition1P)) {
-//					cell.add(new JLabel(player1Icon), BorderLayout.CENTER); // cell.add(new JLabel(player1Icon));
-//				}
-//				if (isPlayerAt(i, j, currentPosition2P)) {
-//					cell.add(new JLabel(player2Icon), BorderLayout.CENTER); // cell.add(new JLabel(player2Icon));
-//				}
-//				boardPanel.add(cell);
-//			}
-//		}
-//		boardPanel.revalidate();
-//		boardPanel.repaint();
-//	}
-
 	private boolean isPlayerAt(int row, int col, int position) {
 		int targetRow = 0, targetCol = 0;
 		if (position < 5) {
@@ -229,7 +197,7 @@ public class BoardGame {
 		private boolean is1P;
 		private Timer timer;
 		private int rollCount;
-
+		boolean plus_move = false;
 		public RollDiceListener(boolean is1P) {
 			this.is1P = is1P;
 		}
@@ -242,23 +210,115 @@ public class BoardGame {
 			rollCount = roll;
 			timer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
-					if (is1P) {
+					GameendCheck();
+					rollCount--;
+					if (is1P) 
+					{
 						currentPosition1P = (currentPosition1P + 1) % totalCells;
-						playerPosition1P.setText("1P is at position: " + currentPosition1P + "star:" + star_1p
-								+ "turncount:" + turnCount);
-						if (currentPosition1P == 4) {
+						playerPosition1P.setText("P1의 star : " + star_1p
+								+ " coins : " + coin_1p);
+						if ((currentPosition1P == 4) && (coin_1p >=20) ) 
+						{
+							coin_1p-=20;
 							star_1p++;
 						}
-					} else {
+					} else 
+					{
 						currentPosition2P = (currentPosition2P + 1) % totalCells;
-						playerPosition2P.setText("2P is at position: " + currentPosition2P + "star:" + star_2p
-								+ "turncount:" + turnCount);
-						if (currentPosition2P == 4) {
+						playerPosition2P.setText(" P2의 star : " + star_2p
+								+ " coins : " + coin_2p +"현재 턴 : " + turnCount);
+						if ((currentPosition2P == 4) && (coin_2p >=20) ) 
+						{
+							coin_2p-=20;
 							star_2p++;
 						}
 					}
 					updateBoard();
-					rollCount--;
+					//1p가 도착한 발판의 효과 발동
+					if (rollCount == 0 && ((currentPosition1P == 2) || (currentPosition1P == 6) || (currentPosition1P == 11) || (currentPosition1P == 13)))
+					{
+						coin_1p += 5;
+					}
+					if (rollCount == 0 && ((currentPosition1P == 1) || (currentPosition1P == 5) || (currentPosition1P == 8) || (currentPosition1P == 12)))
+					{
+						if (coin_1p <= 3)
+						{
+							coin_1p = 0;
+						}else
+						{
+							coin_1p -= 3;
+						}
+					}
+					if (rollCount == 0 && (currentPosition1P == 3))
+					{
+						rollCount +=2;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition1P == 10))
+					{
+						rollCount +=3;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition1P == 7))
+					{
+						currentPosition1P = 0;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition1P == 9))
+					{
+						currentPosition1P = 4;
+						plus_move = true;
+					}
+					//2p가 도착한 발판의 효과 발동
+					if (rollCount == 0 && ((currentPosition2P == 2) || (currentPosition2P == 6) || (currentPosition2P == 11) || (currentPosition2P == 13)))
+					{
+						coin_2p += 5;
+					}
+					if (rollCount == 0 && ((currentPosition2P == 1) || (currentPosition2P == 5) || (currentPosition2P == 8) || (currentPosition2P == 12)))
+					{
+						if (coin_2p <= 3)
+						{
+							coin_2p = 0;
+						}else
+						{
+							coin_2p -= 3;
+						}
+					}
+					if (rollCount == 0 && (currentPosition2P == 3))
+					{
+						rollCount +=2;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition2P == 10))
+					{
+						rollCount +=3;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition2P == 7))
+					{
+						currentPosition2P = 0;
+						plus_move = true;
+					}
+					if (rollCount == 0 && (currentPosition2P == 9))
+					{
+						currentPosition2P = 4;
+						plus_move = true;
+					}
+					if (plus_move)
+					{
+						    updateBoard(); //제어발판을 생각해 이동	
+						    plus_move = false;
+						if ((currentPosition1P == 4) && (coin_1p >=20))  //스타 발판으로 이동한 경우(1P)
+						{
+							coin_1p-=20;
+							star_1p++;
+						}
+						else if ((currentPosition2P == 4) && (coin_2p >=20)) //스타 발판으로 이동한 경우(2P) 
+						{
+							coin_2p-=20;
+							star_2p++;
+						}
+					}
 					if (rollCount <= 0) {
 
 						timer.stop();
@@ -266,27 +326,39 @@ public class BoardGame {
 						if (is1P) {
 
 							is1P = false;
-							rollDiceButton1P.setText("2P Roll Dice");
-							playerPosition1P.setText("1P is at position: " + currentPosition1P + "star:" + star_1p
-									+ "turncount:" + turnCount);
+							rollDiceButton1P.setText("P2 주사위 굴리기");
+							playerPosition1P.setText("P1의 star : " + star_1p
+									+ " coins : " + coin_1p);
 						} else {
 
 							is1P = true;
-							rollDiceButton1P.setText("1P Roll Dice");
+							rollDiceButton1P.setText("P1 주사위 굴리기");
+							playerPosition2P.setText(" P2의 star :" + star_2p
+									+ " coins : " + coin_2p +"현재 턴 : " + turnCount);
 							turnCount++;
-							playerPosition2P.setText("2P is at position: " + currentPosition2P + "star:" + star_2p
-									+ "turncount:" + turnCount);
-							// 디버그
-							// frame.setVisible(false);
+
+							frame.setVisible(false);
 							stopBgm();
-							// new Rapid_Fire_Game(frame);
-							// frame.setVisible(true); 밑에 넣기
-							GameendCheck();
+
+							int gamenumber = random.nextInt(3);  //게임 추가하는 부분 현재 타자,연타,블럭피하기만 구현됨
+							System.out.println(gamenumber);
+							switch(gamenumber) 
+							{
+							case 0:
+								new Tajagame(frame); 
+								break;
+							case 1:	
+								new Rapid_Fire_Game(frame);
+								break;
+							case 2:
+						        TwoPlayerObstacleGame game = new TwoPlayerObstacleGame();
+						        game.startGame(frame);
+						        break;
+							}
 						}
 					}
 				}
 			});
-
 			timer.start();
 		}
 	}
@@ -296,12 +368,11 @@ public class BoardGame {
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(filePath));
 			bgm = AudioSystem.getClip();
 			bgm.open(audioInputStream);
-			bgm.start();
+			bgm.loop(Clip.LOOP_CONTINUOUSLY);
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			e.printStackTrace();
 		}
 	}
-
 	public void stopBgm() {
 		if (bgm != null) {
 			if (bgm.isRunning()) {
@@ -315,7 +386,6 @@ public class BoardGame {
 		bgm.setMicrosecondPosition(0);
 		bgm.start();
 	}
-
 	// 게임 종료 로직
 	public void GameendCheck() {
 		String message1 = String.format("1P의 점수 - 별 : %d, 코인 : %d | 2P의 점수 - 별 : %d, 코인 : %d", star_1p, coin_1p,
@@ -341,7 +411,6 @@ public class BoardGame {
 				JOptionPane.showMessageDialog(frame, message1);
 				JOptionPane.showMessageDialog(frame, "무승부! ");
 			}
-
 			// 모든 창 종료
 			System.exit(0);
 		} else {

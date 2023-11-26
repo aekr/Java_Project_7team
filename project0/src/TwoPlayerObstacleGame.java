@@ -19,12 +19,12 @@ import java.awt.FontFormatException;
 class BackgroundMusic2{
     private Clip clip;
 
-    public void playOneBackgroundMusic(String filePath) {
+    public void playLoopBackgroundMusic(String filePath) {
         try {
             AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File(filePath));
             clip = AudioSystem.getClip();
             clip.open(audioIn);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // 한번 반복
+            clip.loop(Clip.LOOP_CONTINUOUSLY); // 무한 반복
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
@@ -131,14 +131,13 @@ class Obstacle {
 class GamePanel extends JPanel implements KeyListener {
     public static final int WIDTH = 1300;
     public static final int HEIGHT = 800;
-
     private Player player1, player2;
     private List<Obstacle> obstacles;
     private Image backgroundImage;
-    
-    public GamePanel() {
+    private int overcount = 0;
+    public GamePanel(JFrame j, JFrame minigameframe ,BackgroundMusic2 bgm ) {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        requestFocus();
+        requestFocusInWindow();
         addKeyListener(this);
         backgroundImage = new ImageIcon(TwoPlayerObstacleGame.class.getResource("twoplayerobs_background.jpg")).getImage(); // 이미지 경로
 
@@ -155,16 +154,20 @@ class GamePanel extends JPanel implements KeyListener {
         Timer timer = new Timer(10, e -> {
             player1.move();
             player2.move();
-
             for (Obstacle obstacle : obstacles) {
                 obstacle.move();
-                if (player1.getX() < obstacle.getX() + obstacle.getWidth() && player1.getX() + player1.getWidth() > obstacle.getX()
-                        && player1.getY() < obstacle.getY() + obstacle.getHeight() && player1.getY() + player1.getHeight() > obstacle.getY()) {
-                    gameOver(1);
+                if ((player1.getX() < obstacle.getX() + obstacle.getWidth() && player1.getX() + player1.getWidth() > obstacle.getX()
+                        && player1.getY() < obstacle.getY() + obstacle.getHeight() && player1.getY() + player1.getHeight() > obstacle.getY()) && overcount == 0 ) 
+                {
+                	overcount +=1;
+                    gameOver(1,minigameframe, j ,bgm);
+                
                 }
-                if (player2.getX() < obstacle.getX() + obstacle.getWidth() && player2.getX() + player2.getWidth() > obstacle.getX()
-                        && player2.getY() < obstacle.getY() + obstacle.getHeight() && player2.getY() + player2.getHeight() > obstacle.getY()) {
-                    gameOver(2);
+                if ((player2.getX() < obstacle.getX() + obstacle.getWidth() && player2.getX() + player2.getWidth() > obstacle.getX()
+                        && player2.getY() < obstacle.getY() + obstacle.getHeight() && player2.getY() + player2.getHeight() > obstacle.getY()) && overcount == 0) 
+                {
+                	overcount +=1;
+                    gameOver(2,minigameframe, j ,bgm);
                 }
             }
 
@@ -174,23 +177,29 @@ class GamePanel extends JPanel implements KeyListener {
     }
     
 
-    private void gameOver(int n) {
-       JOptionPane.showMessageDialog(this, n+"번 플레이어의 승리!", "Game Over!", JOptionPane.INFORMATION_MESSAGE);
-       System.exit(0);
+    private void gameOver(int n, JFrame minigameframe, JFrame mainFrame,BackgroundMusic2 bgm)  {
+        JOptionPane.showMessageDialog(this, n + "번 플레이어의 승리!", "Game Over!", JOptionPane.INFORMATION_MESSAGE);
+        
+        bgm.stopBackgroundMusic(); // 배경 음악 정지
+        minigameframe.dispose(); // 미니게임 프레임 닫기
+        mainFrame.setVisible(true); // 메인 프레임을 다시 보이게 함
     }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         g.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this);
-        g.setColor(Color.white);
+        
+        g.setColor(Color.blue);
         g.fillRect(player1.getX(), player1.getY(), player1.getWidth(), player1.getHeight());
+
+        g.setColor(Color.red);
         g.fillRect(player2.getX(), player2.getY(), player2.getWidth(), player2.getHeight());
 
-        
+        g.setColor(Color.white); // 장애물의 색상을 여기서 설정
         for (Obstacle obstacle : obstacles) {
             g.fillRect(obstacle.getX(), obstacle.getY(), obstacle.getWidth(), obstacle.getHeight());
         }
+
     }
 
     @Override
@@ -224,10 +233,10 @@ class GamePanel extends JPanel implements KeyListener {
     }
 }
 
-class BackgroundPanel extends JPanel {
+class BackgroundPanel_twoplayerobs extends JPanel {
     private Image backgroundImage;
 
-    public BackgroundPanel(String imagePath) {
+    public BackgroundPanel_twoplayerobs(String imagePath) {
         backgroundImage = new ImageIcon(TwoPlayerObstacleGame.class.getResource(imagePath)).getImage();
     }
     @Override
@@ -237,15 +246,16 @@ class BackgroundPanel extends JPanel {
     }
 }
 public class TwoPlayerObstacleGame {
-    public void startGame() {
-    	
-        JFrame frame = new JFrame("Two Player Obstacle Game");
+	JFrame frame;
+    private BackgroundMusic2 bgm = new BackgroundMusic2();
+    public void startGame(JFrame j) {
+    	frame = new JFrame("Two Player Obstacle Game");
         frame.setSize(GamePanel.WIDTH, GamePanel.HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setLocationRelativeTo(null);
         
-        BackgroundPanel backgroundPanel = new BackgroundPanel("twoplayerobs_background.jpg"); // 이미지 경로
+        BackgroundPanel_twoplayerobs backgroundPanel = new BackgroundPanel_twoplayerobs("twoplayerobs_background.jpg"); // 이미지 경로
         frame.setContentPane(backgroundPanel);
         backgroundPanel.setLayout(new BorderLayout());
 
@@ -266,13 +276,12 @@ public class TwoPlayerObstacleGame {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     frame.remove(gamestartLabel);
-                    GamePanel gamePanel = new GamePanel();
+                    bgm.playLoopBackgroundMusic("twoplayerobs.wav");
+                    GamePanel gamePanel = new GamePanel(j,frame, bgm);
                     frame.add(gamePanel);
                     frame.pack();
                     frame.revalidate();
                     gamePanel.requestFocusInWindow();
-                    BackgroundMusic bgm = new BackgroundMusic();
-                    bgm.playLoopBackgroundMusic("twoplayerobs.wav");
                 }
             }
         });
