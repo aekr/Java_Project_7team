@@ -1,6 +1,9 @@
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.*;
+import java.awt.image.*;
+import java.io.*;
+import javax.imageio.*;
 
 public class TimerClass {
 	private double MainTime = 5.0; //불변 시간
@@ -10,23 +13,64 @@ public class TimerClass {
     private JLabel timeLabel;
     private JProgressBar progressBar;
     private PlayerManager playermanager;
+    private boolean isCriticalState = false;
+    private Mathgame gameInstance;
+    
+    class BackgroundPanel extends JPanel {
+		private Image backgroundImage;
+		  private int x, y;
 
-    public TimerClass(JLabel timeLabel, JProgressBar progressBar, PlayerManager playerManager) {
+		public BackgroundPanel(String imagePath) {
+			try {
+				backgroundImage = ImageIO.read(getClass().getResource(imagePath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			setLayout(null);
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			if (backgroundImage != null) {
+				g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+			}
+		}
+	}
+
+    public TimerClass(JLabel timeLabel, JProgressBar progressBar, PlayerManager playerManager, Mathgame game) {
+    	
     	initialTime = MainTime;
     	timeLeft = initialTime;
         this.timeLabel = timeLabel;
         this.progressBar = progressBar;
         this.playermanager = playerManager;
+        this.gameInstance = game;
         this.progressBar.setMaximum((int)(initialTime * 1000));
 
         timer = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	JFrame frame = game.getFrame();
             	 // 남은 시간이 1.5초 이하일 때 프로그래스 바 색상 변경
-                if (timeLeft <= 1.5) {
+            	if (timeLeft <= 1.5 && !isCriticalState) {
+                    isCriticalState = true;
                     progressBar.setForeground(Color.RED); // 빨간색으로 변경
-                } else {
+                    
+                 // centerBackground3 추가
+                    BackgroundPanel centerBackground3 = new BackgroundPanel("Math_Image4.png");
+                    centerBackground3.setBounds(600, 300, 200, 200);
+                    frame.add(centerBackground3);
+                    frame.revalidate(); // 프레임 레이아웃 재계산
+                    frame.repaint(); // 프레임 다시 그리기
+                    gameInstance.toggleBackground2Visibility(false);
+                } else if (timeLeft > 1.5 && isCriticalState) {
+                	isCriticalState = false;
                     progressBar.setForeground(Color.GREEN); // 그 외에는 초록색으로 유지
+                    new Timer(500, ev -> {
+                        // centerBackground2를 표시하는 로직
+                    	gameInstance.toggleBackground2Visibility(true);
+                    }).start();
                 }
                 if (timeLeft > 0) {
                     timeLeft -= 0.05;

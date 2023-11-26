@@ -17,8 +17,9 @@ public class PlayerManager {
     private int currentPlayer = 0;
     private int[] playerScores = new int[2];
     private Mathgame gameInstance;
-
-    public PlayerManager(Mathgame game, int numPlayers, JTextField questionField, JTextField answerField) {
+    private static SoundManager soundManager;
+    
+    public PlayerManager(Mathgame game, int numPlayers, JTextField questionField, JTextField answerField, SoundManager soundManager) {
         this.gameInstance = game;
         this.currentPlayer = 0;
      // GUI 컴포넌트 설정
@@ -55,6 +56,7 @@ public class PlayerManager {
     }
 
     public void endGame() {
+    	soundManager = gameInstance.soundManager;
     	Mathgame.endPlayerTurn();
 		/*
 		 * JOptionPane.showMessageDialog(frame, "플레이어 1 끝! 점수: " + score1);
@@ -68,6 +70,8 @@ public class PlayerManager {
         } else {
             // Both players have played, show results
             showResults();
+            
+            soundManager.stopAllSounds();
             frame.dispose();
         }
     }
