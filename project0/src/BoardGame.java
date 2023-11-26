@@ -77,7 +77,7 @@ public class BoardGame {
 		// true로 설정 돼 있으면 false로
 		frame.setResizable(false);
 
-		BackgroundPanel backgroundPanel = new BackgroundPanel("main_background.png"); // background2.png
+		BackgroundPanel backgroundPanel = new BackgroundPanel("main_background.png"); 
 		frame.setContentPane(backgroundPanel);
 
 		boardPanel = new JPanel(new GridLayout(4, 5));
@@ -86,14 +86,14 @@ public class BoardGame {
 		backgroundPanel.add(boardPanel, BorderLayout.CENTER);
 
 		try {
-			Image img = ImageIO.read(getClass().getResource("playerimg1.png"));
+			Image img = ImageIO.read(getClass().getResource("player_1.png"));
 			Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
 			player1Icon = new ImageIcon(resizedImg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		try {
-			Image img = ImageIO.read(getClass().getResource("playerimg2.png"));
+			Image img = ImageIO.read(getClass().getResource("player_2.png"));
 			Image resizedImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
 			player2Icon = new ImageIcon(resizedImg);
 		} catch (IOException e) {
@@ -147,7 +147,7 @@ public class BoardGame {
 				cell.setOpaque(false);
 				cell.setPreferredSize(new Dimension(60, 48));
 				// 디버그용 cell 테두리
-				cell.setBorder(BorderFactory.createLineBorder(Color.black));
+//				cell.setBorder(BorderFactory.createLineBorder(Color.black));
 
 				// 두 플레이어가 같은 위치에 있는지 확인
 				boolean player1At = isPlayerAt(i, j, currentPosition1P);
@@ -238,7 +238,7 @@ public class BoardGame {
 		public void actionPerformed(ActionEvent e) {
 			rollDiceButton1P.setEnabled(false);
 			Random rand = new Random();
-			int roll = rand.nextInt(6) + 1;
+			int roll = rand.nextInt(4) + 1;
 			rollCount = roll;
 			timer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
