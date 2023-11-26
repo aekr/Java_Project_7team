@@ -1,7 +1,12 @@
+
+
+import javax.imageio.*;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.io.*;
 import java.util.Random;
 
 public class MoleGame {
@@ -19,10 +24,33 @@ public class MoleGame {
 	private static JLabel startGameMessage;
 	private JPanel startMessagePanel;
 	private static JLabel preStartMessage;
-	private ImageIcon backgroundImage;
+	private Image backgroundImage;
     private ImageIcon whitePanelImage;
     private ImageIcon bluePanelImage;
     private ImageIcon yellowPanelImage;
+    private static SoundManager soundManager;
+    
+ // 배경을 그리기 위한 커스텀 패널 클래스
+ 	class BackgroundPanel extends JPanel {
+ 	    private Image backgroundImage;
+
+ 	    public BackgroundPanel(String imagePath) {
+ 	        try {
+ 	            backgroundImage = ImageIO.read(getClass().getResource(imagePath));
+ 	        } catch (IOException e) {
+ 	            e.printStackTrace();
+ 	        }
+ 	        setLayout(new BorderLayout());
+ 	    }
+
+ 	    @Override
+ 	    protected void paintComponent(Graphics g) {
+ 	        super.paintComponent(g);
+ 	        if (backgroundImage != null) {
+ 	            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+ 	        }
+ 	    }
+ 	}
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(() -> {
@@ -40,6 +68,11 @@ public class MoleGame {
 	public MoleGame() {
 		initialize();
 		preStartMessage = new JLabel("스페이스바를 눌러 게임을 시작!", SwingConstants.CENTER);
+		preStartMessage.setOpaque(true);
+		preStartMessage.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상, 좌, 하, 우 여백 설정
+		preStartMessage.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.BLACK)); // 상, 좌, 하, 우 테두리 두께 설정
+		preStartMessage.setBackground(Color.WHITE);
+		preStartMessage.setFont(new Font("Malgun Gothic", Font.BOLD, 24));
 		preStartMessage.setBounds(100, 100, 200, 50);
 		frame.add(preStartMessage, BorderLayout.SOUTH);
 		preStartMessage.setVisible(true);
@@ -49,29 +82,37 @@ public class MoleGame {
 	}
 
 	private void initialize() {
-		SoundManager soundManager = new SoundManager();
+		soundManager = new SoundManager();
 		
-		int imageWidth = 100;
-		int imageHeight = 100;
+		// 이미지 로드 및 배경 설정
+	    BackgroundPanel backgroundPanel = new BackgroundPanel("Mole_Image1.png");
 		
-		// 이미지 로드
-        backgroundImage = new ImageIcon(getClass().getResource("Image1.png"));
+	 // 새로운 메인 패널 생성 및 여백 설정
+	    JPanel mainPanel = new JPanel(new BorderLayout());
+	    mainPanel.setBorder(new EmptyBorder(100, 100, 100, 100)); // 여백 설정
+	    mainPanel.setOpaque(false);
+		
+		int imageWidth = 200;
+		int imageHeight = 200;
+		
+		
+        //backgroundImage = new ImageIcon(getClass().getResource("Image1.png"));
         //whitePanelImage = new ImageIcon(getClass().getResource("Image2.png"));
         //bluePanelImage = new ImageIcon(getClass().getResource("Image3.png"));
         //yellowPanelImage = new ImageIcon(getClass().getResource("Image4.png"));
         
         // whitePanelImage
-        ImageIcon originalWhitePanelIcon = new ImageIcon(getClass().getResource("Image2.png"));
+        ImageIcon originalWhitePanelIcon = new ImageIcon(getClass().getResource("Mole_Image2.png"));
         Image scaledImage2 = originalWhitePanelIcon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
         whitePanelImage = new ImageIcon(scaledImage2);
         
         // bluePanelImage
-        ImageIcon originalbluePanelIcon = new ImageIcon(getClass().getResource("Image3.png"));
+        ImageIcon originalbluePanelIcon = new ImageIcon(getClass().getResource("Mole_Image3.png"));
         Image scaledImage3 = originalbluePanelIcon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
         bluePanelImage = new ImageIcon(scaledImage3);
         
         // yellowPanelImage
-        ImageIcon originalyellowPanelIcon = new ImageIcon(getClass().getResource("Image4.png"));
+        ImageIcon originalyellowPanelIcon = new ImageIcon(getClass().getResource("Mole_Image4.png"));
         Image scaledImage4 = originalyellowPanelIcon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
         yellowPanelImage = new ImageIcon(scaledImage4);
         
@@ -85,39 +126,54 @@ public class MoleGame {
 
 		// 기본 UI 설정
 		frame = new JFrame();
-		frame.setBounds(100, 100, 720, 480);
+		frame.setBounds(100, 100, 1600, 1080);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 
 		// 상단 패널 설정 (점수와 타이머 표시)
 		topPanel = new JPanel();
+		topPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10)); // 중앙 정렬, 좌우 여백 0, 상하 여백 10
+		topPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상, 좌, 하, 우 여백 설정
+		topPanel.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.BLACK)); // 상, 좌, 하, 우 테두리 두께 설정
+		topPanel.setBackground(Color.WHITE);
+		topPanel.setOpaque(true);
 		scoreLabel = new JLabel("점수: 0");
-		timerLabel = new JLabel("시간: 30");
+		timerLabel = new JLabel("시간: 15");
+		scoreLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 16));
+		timerLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 16));
 		topPanel.add(scoreLabel);
 		topPanel.add(timerLabel);
 		frame.getContentPane().add(topPanel, BorderLayout.NORTH);
+		mainPanel.add(topPanel, BorderLayout.NORTH);
 
 		// 그리드 패널 설정
 		gridPanel = new JPanel();
+		gridPanel.setOpaque(false);
+		gridPanel.setBorder(BorderFactory.createEmptyBorder()); // 외곽선 없애기
 		gridPanel.setLayout(new GridLayout(4, 4));
 		frame.getContentPane().add(gridPanel, BorderLayout.CENTER);
+		mainPanel.add(gridPanel, BorderLayout.CENTER);
 
 		// 버튼 설정
 		buttons = new JButton[4][4];
 		buttons2 = new JButton[4][4];
 		score = 0;
-		time = 30;
+		time = 15;
 		isGameActive = true;
 
 		// 게임 시작 메시지 패널 및 레이블 초기화
         startMessagePanel = new JPanel(new BorderLayout());
         startGameMessage = new JLabel("게임 시작!", SwingConstants.CENTER);
+        //startMessagePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // 상, 좌, 하, 우 여백 설정
+        startMessagePanel.setBorder(BorderFactory.createEmptyBorder());
+        startMessagePanel.setBackground(Color.WHITE);
         // startGameMessage 설정...
         startGameMessage.setBounds(100, 100, 200, 50); // 적절한 위치와 크기 설정
         startMessagePanel.add(startGameMessage, BorderLayout.CENTER);
         frame.add(startMessagePanel, BorderLayout.SOUTH); // SOUTH에 배치
 		// startGameMessage.setFont(new Font("Arial", Font.BOLD, 24));
 		// startGameMessage.setForeground(Color.GREEN);
+        mainPanel.add(startMessagePanel, BorderLayout.SOUTH);
 		
 		startGameMessage.setVisible(false); // 초기에는 보이지 않도록 설정
 
@@ -125,6 +181,9 @@ public class MoleGame {
 			for (int j = 0; j < 4; j++) {
 				JButton button = new JButton();
 				button.setIcon(whitePanelImage);
+				button.setContentAreaFilled(false); // 배경을 채우지 않음
+		        button.setOpaque(false); // 투명하게 설정
+		        button.setBorder(BorderFactory.createEmptyBorder());
 				// button.setBackground(Color.WHITE);
 				button.addActionListener(new ButtonClickListener(i, j));
 				buttons[i][j] = button;
@@ -132,11 +191,20 @@ public class MoleGame {
 				gridPanel.add(button);
 			}
 		}
+		
+		// 이미지 로드
+		frame.setContentPane(backgroundPanel);
+		
+		// 메인 패널을 배경 패널에 추가
+	    backgroundPanel.add(mainPanel, BorderLayout.CENTER);
+		
+	    // 배경 패널을 프레임의 컨텐트 팬으로 설정
+	    frame.setContentPane(backgroundPanel);
 
-		// 게임 타이머 설정 (30초 후 게임 종료)
-		gameTimer = new Timer(31000, e -> endGame());
+		// 게임 타이머 설정 (15초 후 게임 종료)
+		gameTimer = new Timer(16000, e -> endGame());
 		// 디버그
-		// gameTimer = new Timer(5000, e -> endGame());
+		//gameTimer = new Timer(5000, e -> endGame());
 		
 
 		// 시계 타이머 설정 (1초마다 시간 업데이트)
@@ -158,12 +226,15 @@ public class MoleGame {
 			}
 		});
 
+		frame.setLocationRelativeTo(null);
 		frame.setFocusable(true);
 		frame.requestFocusInWindow();
-		
-		// 배경음악 재생
+  
+						// 배경음악 재생
 	    soundManager.loadBGM("bgm1.wav"); // 실제 파일 경로로 대체
 	    soundManager.playBGM();
+																		
+							
 	}
 
 	// 랜덤 딜레이
@@ -269,16 +340,17 @@ public class MoleGame {
 		JOptionPane.showMessageDialog(frame, resultMessage);
 	}
 
-	// 게임 시작(버그 수정용)
+	// 게임 시작
 	private void startGame() {
+		startMessagePanel.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, Color.BLACK)); // 상, 좌, 하, 우 테두리 두께 설정
 		score = 0; // 점수 초기화
-		time = 30; // 시간 초기화
+		time = 15; // 시간 초기화
 		isGameActive = true; // 게임 활성화 상태로 설정
-		currentPlayer = 0; // 첫 번째 플레이어로 설정
+		// currentPlayer = 0; // 첫 번째 플레이어로 설정
 
 		// UI 요소 초기화
 		scoreLabel.setText("점수: 0");
-		timerLabel.setText("시간: 30");
+		timerLabel.setText("시간: 15");
 		for (JButton[] buttonRow : buttons) {
 			for (JButton button : buttonRow) {
 				button.setEnabled(true);
@@ -296,13 +368,16 @@ public class MoleGame {
 		gridPanel.setVisible(true); // 게임 패널 보이기
         startGameMessage.setVisible(true);
         new Timer(1000, e -> {
+        	startGameMessage.setVisible(false);
             frame.remove(startMessagePanel); // startMessagePanel 제거
             frame.revalidate(); // 레이아웃 재검토
             frame.repaint(); // 프레임 다시 그리기
+            startMessagePanel.setBorder(BorderFactory.createEmptyBorder());
         }).start(); // 1초 후 메시지 패널 숨김
 	}
 
 	private void endGame() {
+		// soundManager = new SoundManager();
 		isGameActive = false;
 		// 현재 플레이어 점수 저장
 		playerScores[currentPlayer] = score;
@@ -323,9 +398,12 @@ public class MoleGame {
 					button.setEnabled(false);
 				}
 
+				
 				gameTimer.stop();
 				clockTimer.stop();
-
+				
+				soundManager.stopAllSounds();
+				frame.dispose();
 			}
 		}
 	}
@@ -335,8 +413,8 @@ public class MoleGame {
 		JOptionPane.showMessageDialog(frame, "플레이어 1 끝! 점수: " + score);
 		// JOptionPane.showMessageDialog(frame, "스페이스바를 눌러 게임을 시작하세요.");
 		score = 0; // 점수 초기화
-		time = 30; // 시간 초기화
-		currentPlayer = 1; // 두 번째 플레이어로 설정
+		time = 15; // 시간 초기화
+		// currentPlayer = 1; // 두 번째 플레이어로 설정
 		gridPanel.setVisible(false);
 		
 		// 게임 시작 메시지 재설정 및 가시화
@@ -344,16 +422,16 @@ public class MoleGame {
         preStartMessage.setVisible(true);
         startGameMessage.setVisible(false);
         
-        startGameMessage.setVisible(true);
-        new Timer(1000, e -> {
-            frame.remove(startMessagePanel); // startMessagePanel 제거
-            frame.revalidate(); // 레이아웃 재검토
-            frame.repaint(); // 프레임 다시 그리기
-        }).start(); // 1초 후 메시지 패널 숨김
+//        startGameMessage.setVisible(true);
+//        new Timer(1000, e -> {
+//            frame.remove(startMessagePanel); // startMessagePanel 제거
+//            frame.revalidate(); // 레이아웃 재검토
+//            frame.repaint(); // 프레임 다시 그리기
+//        }).start(); // 1초 후 메시지 패널 숨김
 
 		// UI 요소 초기화
 		scoreLabel.setText("점수: 0");
-		timerLabel.setText("시간: 30");
+		timerLabel.setText("시간: 15");
 		for (JButton[] buttonRow : buttons) {
 			for (JButton button : buttonRow) {
 				button.setEnabled(true);
@@ -367,6 +445,7 @@ public class MoleGame {
                 if (e.getKeyCode() == KeyEvent.VK_SPACE) {
                     preStartMessage.setVisible(false);
                  // 게임 타이머 및 시계 타이머 재시작
+                    startGame();
                     gameTimer.restart();
             		clockTimer.restart();
             		isGameActive = true; // 게임 활성화 상태로 설정
@@ -381,22 +460,28 @@ public class MoleGame {
 	}
 	
 	// 배경을 그리기 위한 커스텀 패널 클래스
-    class BackgroundPanel extends JPanel {
-        private Image backgroundImage;
-
-        public BackgroundPanel(Image backgroundImage) {
-            this.backgroundImage = backgroundImage;
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            g.drawImage(backgroundImage, 0, 0, this.getWidth(), this.getHeight(), this);
-        }
-    }
+//	class BackgroundPanel extends JPanel {
+//	    private Image backgroundImage;
+//
+//	    public BackgroundPanel(String imagePath) {
+//	        try {
+//	            backgroundImage = ImageIO.read(getClass().getResource(imagePath));
+//	        } catch (IOException e) {
+//	            e.printStackTrace();
+//	        }
+//	        setLayout(new BorderLayout());
+//	    }
+//
+//	    @Override
+//	    protected void paintComponent(Graphics g) {
+//	        super.paintComponent(g);
+//	        if (backgroundImage != null) {
+//	            g.drawImage(backgroundImage, 0, 0, getWidth(), getHeight(), null);
+//	        }
+//	    }
+//	}
 
 	class ButtonClickListener implements ActionListener {
-		SoundManager soundManager1 = new SoundManager();
 		private int row, col;
 
 		public ButtonClickListener(int row, int col) {
@@ -411,24 +496,28 @@ public class MoleGame {
 			
 			JButton button = (JButton) e.getSource();
 			JButton button2 = (JButton) e.getSource();
-
+			// soundManager = new SoundManager();
+			
 			// 점수 오르는 정도
 			if (row == currentRow && col == currentCol) {
 				score++;
 				moveBlueSquare();
 				moveGoldenSquare();
-				soundManager1.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
-		        soundManager1.playEffect();
+				soundManager.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
+		        soundManager.playEffect();
+									 
 			} else if (row == Gold_currentRow && col == Gold_currentCol) {
 				score += 5;
 				// 황금 칸 이동
 				moveBlueSquare();
 				moveGoldenSquare();
-				soundManager1.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
-		        soundManager1.playEffect();
+				soundManager.loadEffect("bgm2.wav"); // 실제 파일 경로로 대체
+		        soundManager.playEffect();
+									 
 			} else {
 				// 막 클릭 하는 사람이 있을 수 있기 때문에 점수 감소를 넣음
 				score--;
+				// soundManager.stopAllSounds();
 			}
 			updateScoreDisplay();
 		}

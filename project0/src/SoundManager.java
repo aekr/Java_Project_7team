@@ -1,3 +1,4 @@
+
 import javax.sound.sampled.*;
 import java.io.*;
 
@@ -50,6 +51,17 @@ public class SoundManager {
             }
             effectClip.setFramePosition(0);  // 효과음을 처음부터 재생
             effectClip.start();
+        }
+    }
+    
+    public void stopAllSounds() {
+        if (bgmClip != null) {
+            bgmClip.stop();
+            bgmClip.close(); // 리소스 해제
+        }
+        if (effectClip != null) {
+            effectClip.stop();
+            effectClip.close(); // 리소스 해제
         }
     }
 }
