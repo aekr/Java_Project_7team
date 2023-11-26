@@ -25,7 +25,7 @@ public class BoardGame {
 	private final int totalCells = 2 * (3 + 4);
 	private int star_1p = 0;
 	private int star_2p = 0;
-	private int coin_1p = 40; // 코인
+	private int coin_1p = 0; // 코인
 	private int coin_2p = 0;
 	private ImageIcon player1Icon;
 	private ImageIcon player2Icon;
