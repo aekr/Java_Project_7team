@@ -47,8 +47,8 @@ public class Mathgame {
 		}
 	}
 
-	public Mathgame(JFrame externalFrame) {
-		this.frame = externalFrame;
+	public Mathgame(JFrame j) {
+		this.frame = j;
 		createAndShowGUI();
 	}
 	

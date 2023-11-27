@@ -54,8 +54,8 @@ public class MoleGame {
 
 	private Timer blueSquareTimer; // 클래스 필드로 Timer 추가
 
-	public MoleGame(JFrame externalFrame) {
-		this.frame = externalFrame;
+	public MoleGame(JFrame j) {
+		this.frame = j;
 		initialize();
 		preStartMessage = new JLabel("스페이스바를 눌러 게임을 시작!", SwingConstants.CENTER);
 		preStartMessage.setOpaque(true);
