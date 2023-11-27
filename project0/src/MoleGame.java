@@ -194,9 +194,9 @@ public class MoleGame {
 	    frame.setContentPane(backgroundPanel);
 
 		// 게임 타이머 설정 (15초 후 게임 종료)
-		//gameTimer = new Timer(16000, e -> endGame());
+		gameTimer = new Timer(16000, e -> endGame());
 		// 디버그
-		gameTimer = new Timer(5000, e -> endGame());
+		//gameTimer = new Timer(5000, e -> endGame());
 		
 
 		// 시계 타이머 설정 (1초마다 시간 업데이트)
