@@ -11,7 +11,7 @@ public class Mathgame {
 	private static int score1 = 0; // 플레이어 1의 점수
 	private static int score2 = 0; // 플레이어 2의 점수
 	private static TimerClass timer;
-	private JFrame frame;
+	private JFrame frame, main;
 	private static JPanel questionAnswerPanel;
 	private static PlayerManager playerManager;
 	private static JLabel startGameMessage;
@@ -25,6 +25,7 @@ public class Mathgame {
     SoundManager soundManager;
     private Timer backgroundSwitchTimer;
     private BackgroundPanel centerBackground2, centerBackground3;
+    private static BoardGame window;
 
 	class BackgroundPanel extends JPanel {
 		private Image backgroundImage;
@@ -48,8 +49,9 @@ public class Mathgame {
 		}
 	}
 
-	public Mathgame(JFrame j) {
-		this.frame = j;
+	public Mathgame(JFrame j, BoardGame window) {
+		main = j;
+		this.window = window;
 		createAndShowGUI();
 	}
 	
@@ -260,7 +262,7 @@ public class Mathgame {
 		 */
 
 		// 먼저 PlayerManager 객체를 생성합니다.
-		playerManager = new PlayerManager(this, 2, questionField, answerField, soundManager);
+		playerManager = new PlayerManager(this, 2, questionField, answerField, soundManager, window, main);
 
 		// 이제 TimerClass 객체를 생성하고, 여기에 playerManager를 전달합니다.
 		timer = new TimerClass(timeLabel, progressBar, playerManager, this);
