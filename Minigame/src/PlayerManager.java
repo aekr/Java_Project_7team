@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 public class PlayerManager {
-	private JFrame frame;
+	private JFrame frame, main;
     private JPanel questionAnswerPanel;
     private JTextField questionField, answerField;
     private JLabel scoreLabel, timeLabel;
@@ -18,13 +18,16 @@ public class PlayerManager {
     private int[] playerScores = new int[2];
     private Mathgame gameInstance;
     private static SoundManager soundManager;
+    private BoardGame window;
     
-    public PlayerManager(Mathgame game, int numPlayers, JTextField questionField, JTextField answerField, SoundManager soundManager) {
+    public PlayerManager(Mathgame game, int numPlayers, JTextField questionField, JTextField answerField, SoundManager soundManager, BoardGame window, JFrame main) {
         this.gameInstance = game;
         this.currentPlayer = 0;
      // GUI 컴포넌트 설정
         this.questionField = questionField;
         this.answerField = answerField;
+        this.window = window;
+        this.main = main;
     }
 
     private void startGameForNextPlayer() {
@@ -73,6 +76,7 @@ public class PlayerManager {
             
             soundManager.stopAllSounds();
             frame.dispose();
+            main.setVisible(true);
         }
     }
 
@@ -82,13 +86,23 @@ public class PlayerManager {
     
     private void showResults() {
         // Compare scores and show results
-    	String resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n"
-				+ (playerScores[0] > playerScores[1] ? "플레이어 1 승리!"
-						: playerScores[0] < playerScores[1] ? "플레이어 2 승리!" : "무승부!");
-		JOptionPane.showMessageDialog(frame, resultMessage);
+        String resultMessage;
+        if (playerScores[0] > playerScores[1]) {
+            resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n플레이어 1 승리!";
+            window.P1_win();
+        } else if (playerScores[0] < playerScores[1]) {
+            resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n플레이어 2 승리!";
+            window.P2_win();
+        } else {
+            resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n무승부!";
+            window.draw();
+        }
+
+        JOptionPane.showMessageDialog(frame, resultMessage);
 
         // Reset for a new game or exit
-//        currentPlayer = 0;
-//        startGame();
+        // currentPlayer = 0;
+        // startGame();
     }
+
 }
