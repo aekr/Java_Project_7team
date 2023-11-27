@@ -340,20 +340,26 @@ public class BoardGame {
 							frame.setVisible(false);
 							stopBgm();
 
-							int gamenumber = random.nextInt(3);  //게임 추가하는 부분 현재 타자,연타,블럭피하기만 구현됨
+							int gamenumber = random.nextInt(5);  //게임 추가하는 부분 현재 타자,연타,블럭피하기만 구현됨. 수학퀴즈,두더지 추가 구현.
 							System.out.println(gamenumber);
-							switch(gamenumber) 
+							switch(gamenumber)  
 							{
 							case 0:
-								new Tajagame(frame); 
+								new Tajagame(frame);
 								break;
-							case 1:	
+							case 1:
 								new Rapid_Fire_Game(frame);
-								break;
+								break; 
 							case 2:
-						        TwoPlayerObstacleGame game = new TwoPlayerObstacleGame();
-						        game.startGame(frame);
-						        break;
+								TwoPlayerObstacleGame game = new TwoPlayerObstacleGame();
+								game.startGame(frame);
+								break;
+							case 3:
+								new Mathgame(frame);
+								break;
+							case 4:
+								new MoleGame(frame);
+								break;
 							}
 						}
 					}

@@ -52,20 +52,10 @@ public class MoleGame {
  	    }
  	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				MoleGame window = new MoleGame();
-				window.frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	private Timer blueSquareTimer; // 클래스 필드로 Timer 추가
 
-	public MoleGame() {
+	public MoleGame(JFrame externalFrame) {
+		this.frame = externalFrame;
 		initialize();
 		preStartMessage = new JLabel("스페이스바를 눌러 게임을 시작!", SwingConstants.CENTER);
 		preStartMessage.setOpaque(true);
@@ -226,6 +216,7 @@ public class MoleGame {
 			}
 		});
 
+		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 		frame.setFocusable(true);
 		frame.requestFocusInWindow();
