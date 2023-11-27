@@ -15,6 +15,7 @@ public class TimerClass {
     private PlayerManager playermanager;
     private boolean isCriticalState = false;
     private Mathgame gameInstance;
+    private Timer backgroundSwitchTimer;
     
     class BackgroundPanel extends JPanel {
 		private Image backgroundImage;
@@ -39,7 +40,7 @@ public class TimerClass {
 	}
 
     public TimerClass(JLabel timeLabel, JProgressBar progressBar, PlayerManager playerManager, Mathgame game) {
-    	
+    	JFrame frame = game.getFrame();
     	initialTime = MainTime;
     	timeLeft = initialTime;
         this.timeLabel = timeLabel;
@@ -51,26 +52,34 @@ public class TimerClass {
         timer = new Timer(50, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	JFrame frame = game.getFrame();
+            	
             	 // 남은 시간이 1.5초 이하일 때 프로그래스 바 색상 변경
             	if (timeLeft <= 1.5 && !isCriticalState) {
                     isCriticalState = true;
                     progressBar.setForeground(Color.RED); // 빨간색으로 변경
                     
                  // centerBackground3 추가
-                    BackgroundPanel centerBackground3 = new BackgroundPanel("Math_Image4.png");
-                    centerBackground3.setBounds(600, 300, 200, 200);
-                    frame.add(centerBackground3);
+                    gameInstance.getCenterBackground2().setVisible(false);
+                    gameInstance.getCenterBackground3().setVisible(true);
+                    gameInstance.controlTimer1(false);
                     frame.revalidate(); // 프레임 레이아웃 재계산
                     frame.repaint(); // 프레임 다시 그리기
-                    gameInstance.toggleBackground2Visibility(false);
+                    
                 } else if (timeLeft > 1.5 && isCriticalState) {
                 	isCriticalState = false;
                     progressBar.setForeground(Color.GREEN); // 그 외에는 초록색으로 유지
-                    new Timer(500, ev -> {
-                        // centerBackground2를 표시하는 로직
-                    	gameInstance.toggleBackground2Visibility(true);
-                    }).start();
+                 // 타이머 초기화
+                    backgroundSwitchTimer = new Timer(500, ev -> {
+                        SwingUtilities.invokeLater(() -> {
+                            gameInstance.getCenterBackground2().setVisible(true);
+                            gameInstance.getCenterBackground3().setVisible(false);
+                            gameInstance.controlTimer1(true);
+                            frame.revalidate();
+                            frame.repaint();
+                        });
+                    });
+                    backgroundSwitchTimer.setRepeats(false); // 타이머가 한 번만 실행되도록 설정
+                    backgroundSwitchTimer.start();
                 }
                 if (timeLeft > 0) {
                     timeLeft -= 0.05;

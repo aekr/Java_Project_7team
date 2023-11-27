@@ -21,9 +21,10 @@ public class Mathgame {
 	private static JTextField answerField;
 	private boolean movingToSecondPosition = true;
 	private Timer timer1; // 이동하는 타이머
-    private BackgroundPanel centerBackground2;
     private boolean isBackground2Visible = true;
     SoundManager soundManager;
+    private Timer backgroundSwitchTimer;
+    private BackgroundPanel centerBackground2, centerBackground3;
 
 	class BackgroundPanel extends JPanel {
 		private Image backgroundImage;
@@ -133,9 +134,20 @@ public class Mathgame {
 	    centerBackground.setBounds(100, 100, 400, 400); // 위치와 크기 설정
 	    frame.add(centerBackground);
 		
-	    BackgroundPanel centerBackground2 = new BackgroundPanel("Math_Image3.png");
+	    centerBackground2 = new BackgroundPanel("Math_Image3.png");
 	    centerBackground2.setBounds(600, 300, 200, 200);
 	    frame.add(centerBackground2);
+	    centerBackground2.setVisible(true);
+	    
+	    centerBackground3 = new BackgroundPanel("Math_Image4.png");
+        centerBackground3.setBounds(600, 300, 200, 200);
+        frame.add(centerBackground3);
+        centerBackground3.setVisible(false);
+	    
+	    BackgroundPanel centerBackground4 = new BackgroundPanel("Math_Image5.png");
+        centerBackground4.setBounds(600, 300, 200, 200);
+        frame.add(centerBackground4);
+        centerBackground4.setVisible(false);
 	    
 	    // 위치를 변경하는 메서드
 	    ActionListener moveAction = new ActionListener() {
@@ -191,17 +203,32 @@ public class Mathgame {
 								answerField.setText(""); // 답변 필드 초기화
 								answerField.requestFocusInWindow(); // 커서를 다시 답변 필드로 설정합니다.
 								
+								soundManager.loadEffect("bgm2.wav");
+								soundManager.playEffect();
+								
 								// centerBackground4 추가
-								toggleBackground2Visibility(false);
-					            BackgroundPanel centerBackground4 = new BackgroundPanel("Math_Image5.png");
-					            centerBackground4.setBounds(600, 300, 200, 200);
-					            frame.add(centerBackground4);
+								// toggleBackground2Visibility(false);
+								timer1.stop(); 
+								centerBackground2.setVisible(false);
+								centerBackground4.setVisible(true);
+					            frame.revalidate();
+					            frame.repaint();
 
 					            // 0.5초 후에 centerBackground2로 전환
-					            new Timer(500, ev -> {
-					                frame.remove(centerBackground4);
-					                frame.repaint();
-					            }).start();
+					            if (backgroundSwitchTimer != null) {
+									backgroundSwitchTimer.stop();
+								}
+								backgroundSwitchTimer = new Timer(500, ev -> {
+									SwingUtilities.invokeLater(() -> {
+										centerBackground4.setVisible(false);
+										centerBackground2.setVisible(true);
+										frame.revalidate();
+										frame.repaint();
+										timer1.start();
+									});
+								});
+								backgroundSwitchTimer.setRepeats(false); // 타이머가 한 번만 실행되도록 설정
+								backgroundSwitchTimer.start();
 							}
 						}
 					}
@@ -268,21 +295,25 @@ public class Mathgame {
 
 	}
 
-	public void toggleBackground2Visibility(boolean isVisible) {
-	    // centerBackground2와 timer1이 초기화되었는지 확인
-	    if (centerBackground2 != null && timer1 != null) {
-	        if (isVisible != isBackground2Visible) {
-	            centerBackground2.setVisible(isVisible);
-	            isBackground2Visible = isVisible;
+	public void controlTimer1(boolean start) {
+        if (start) {
+            timer1.start();
+        } else {
+            timer1.stop();
+        }
+    }
+	
+	public Timer backgroundSwitchTimer() {
+        return backgroundSwitchTimer;
+    }
+	
+	public BackgroundPanel getCenterBackground2() {
+        return centerBackground2;
+    }
 
-	            if (isVisible) {
-	                timer1.start(); // 타이머 재시작
-	            } else {
-	                timer1.stop(); // 타이머 일시중지
-	            }
-	        }
-	    }
-	}
+    public BackgroundPanel getCenterBackground3() {
+        return centerBackground3;
+    }
 
 	// 스코어 업데이트
 	public static void updateScore(JLabel scoreLabel) {
