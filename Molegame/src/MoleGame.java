@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.Random;
 
 public class MoleGame {
-	private JFrame frame;
+	private JFrame frame, main;
 	private JPanel gridPanel, topPanel;
 	private JButton[][] buttons, buttons2;
 	private JLabel scoreLabel, timerLabel;
@@ -29,6 +29,7 @@ public class MoleGame {
     private ImageIcon bluePanelImage;
     private ImageIcon yellowPanelImage;
     private static SoundManager soundManager;
+    private BoardGame window;
     
  // 배경을 그리기 위한 커스텀 패널 클래스
  	class BackgroundPanel extends JPanel {
@@ -52,20 +53,11 @@ public class MoleGame {
  	    }
  	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				MoleGame window = new MoleGame();
-				window.frame.setVisible(true);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
 	private Timer blueSquareTimer; // 클래스 필드로 Timer 추가
 
-	public MoleGame() {
+	public MoleGame(JFrame j, BoardGame window) {
+		main = j;
+		this.window = window;
 		initialize();
 		preStartMessage = new JLabel("스페이스바를 눌러 게임을 시작!", SwingConstants.CENTER);
 		preStartMessage.setOpaque(true);
@@ -202,9 +194,9 @@ public class MoleGame {
 	    frame.setContentPane(backgroundPanel);
 
 		// 게임 타이머 설정 (15초 후 게임 종료)
-		gameTimer = new Timer(16000, e -> endGame());
+		//gameTimer = new Timer(16000, e -> endGame());
 		// 디버그
-		//gameTimer = new Timer(5000, e -> endGame());
+		gameTimer = new Timer(5000, e -> endGame());
 		
 
 		// 시계 타이머 설정 (1초마다 시간 업데이트)
@@ -226,6 +218,7 @@ public class MoleGame {
 			}
 		});
 
+		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 		frame.setFocusable(true);
 		frame.requestFocusInWindow();
@@ -334,10 +327,19 @@ public class MoleGame {
 
 	// 플레이어 점수 비교
 	private void compareScoresAndShowResult() {
-		String resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n"
-				+ (playerScores[0] > playerScores[1] ? "플레이어 1 승리!"
-						: playerScores[0] < playerScores[1] ? "플레이어 2 승리!" : "무승부!");
-		JOptionPane.showMessageDialog(frame, resultMessage);
+	    String resultMessage;
+	    if (playerScores[0] > playerScores[1]) {
+	        resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n플레이어 1 승리!";
+	        window.P1_win();
+	    } else if (playerScores[0] < playerScores[1]) {
+	        resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n플레이어 2 승리!";
+	        window.P2_win();
+	    } else {
+	        resultMessage = "플레이어 1 점수: " + playerScores[0] + "\n" + "플레이어 2 점수: " + playerScores[1] + "\n무승부!";
+	        window.draw();
+	    }
+
+	    JOptionPane.showMessageDialog(frame, resultMessage);
 	}
 
 	// 게임 시작
@@ -404,6 +406,7 @@ public class MoleGame {
 				
 				soundManager.stopAllSounds();
 				frame.dispose();
+				main.setVisible(true);
 			}
 		}
 	}
