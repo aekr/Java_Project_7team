@@ -47,6 +47,11 @@ public class Mathgame {
 		}
 	}
 
+	public Mathgame(JFrame externalFrame) {
+		this.frame = externalFrame;
+		createAndShowGUI();
+	}
+	
 	public void createAndShowGUI() {
 		soundManager = new SoundManager();
 		// 배경 이미지를 가진 새로운 패널 생성
@@ -249,7 +254,7 @@ public class Mathgame {
 			}
 		});
 		
-		
+		frame.setVisible(true);
 
 		// 이미지 로드
 		// frame.setContentPane(backgroundPanel);
@@ -315,25 +320,6 @@ public class Mathgame {
 
 	public void updateScoreLabel(int score) {
 		scoreLabel.setText("Score: " + score);
-	}
-
-	public static void main(String[] args) {
-		Mathgame game = new Mathgame();
-		game.createAndShowGUI();
-
-		/*
-		 * JFrame frame = new JFrame("Calculator Game"); frame.setSize(400, 200);
-		 * frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); frame.setLayout(new
-		 * GridLayout(2, 1));
-		 * 
-		 * // Player 1 Panel JPanel panel1 = new JPanel(); JTextField questionField1 =
-		 * new JTextField(10); // 문제 패널 JTextField answerField1 = new JTextField(10); //
-		 * 답변 패널 JButton button1 = new JButton("Calculate"); panel1.add(questionField1);
-		 * panel1.add(answerField1); panel1.add(button1);
-		 * 
-		 * String initialProblem1 = RandomLogic.generateProblem();
-		 * questionField1.setText(initialProblem1); questionField1.setEditable(false);
-		 */
 	}
 
 	// 플레이어가 게임을 마칠 때 호출되는 메소드
